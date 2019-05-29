@@ -79,7 +79,6 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
             
             do {
                 let test = try ctx.fetch(fetchRequest);
-                print(type(of: test));
                 
                 let sourceElement = test[indexPath.row] as! NSManagedObject;
                 
@@ -127,7 +126,7 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath);
         
         cell.backgroundColor = UIColor.tealColor;
-        cell.textLabel?.text = self.companies[indexPath.row].name;
+        cell.textLabel?.text = "\(self.companies[indexPath.row].name) - Founded: \(self.companies[indexPath.row].founded)";
         cell.textLabel?.textColor = .white;
         cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 16);
         
