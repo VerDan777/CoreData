@@ -23,4 +23,21 @@ struct CoreDataManager {
         }
         return container;
     }();
+    
+    
+    func createEmployeee(name: String, comletition: @escaping (Error?) -> ()) {
+      let ctx = persistentContainer.viewContext;
+        
+        let employee = NSEntityDescription.insertNewObject(forEntityName: "Employee", into: ctx);
+        
+        employee.setValue(name, forKey: "name");
+        
+        do {
+            try ctx.save();
+            comletition(nil);
+        } catch let error {
+            print(error);
+            comletition(error);
+        }
+    }
 }
