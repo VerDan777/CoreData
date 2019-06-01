@@ -17,6 +17,10 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
     
     var delegate: CompaniesViewController?
     
+    var imageData: Data?
+    
+    var imageLocalData: Data?
+    
     let nameLb: UILabel = {
         let nameLabel = UILabel();
         nameLabel.text = "Name";
@@ -28,12 +32,10 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
     
     let companyImageView: UIButton = {
         let imageView = UIButton(type: .system);
-//        imageView.isUserInteractionEnabled = true;
         imageView.setImage(#imageLiteral(resourceName: "select_photo_empty").withRenderingMode(.alwaysOriginal), for: .normal);
         imageView.translatesAutoresizingMaskIntoConstraints = false;
         imageView.layer.masksToBounds = true;
         imageView.layer.cornerRadius = 50;
-//        imageView.layer.
         imageView.addTarget(self, action: #selector(handleSelectPhoto), for: .touchUpInside)
         return imageView;
     }();
@@ -63,7 +65,6 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
     }();
 
     @objc func handleSelectPhoto() {
-        print("try...");
         let imagePickerController = UIImagePickerController();
         imagePickerController.allowsEditing = true;
         imagePickerController.delegate = self as UIImagePickerControllerDelegate & UINavigationControllerDelegate;
@@ -76,12 +77,13 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
         
         self.view.addSubview(companyImageView);
         
+        if let dataForImage = imageData {
+            self.companyImageView.setImage(UIImage(data: dataForImage)?.withRenderingMode(.alwaysOriginal), for: .normal);
+            
+        }
+        
         view.backgroundColor = .tealColor;
         
-//        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap));
-//        self.view.addGestureRecognizer(tap);
-        
-//        self.whiteView.addSubview(tf);
         navigationItem.title = "Create Company";
         
         self.view.addSubview(whiteView);
@@ -103,16 +105,16 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
         nameLb.leftAnchor.constraint(equalTo: self.whiteView.leftAnchor).isActive = true;
         nameLb.heightAnchor.constraint(equalToConstant: 50).isActive = true;
         nameLb.widthAnchor.constraint(equalToConstant: 100).isActive = true;
-//
+
         self.whiteView.addSubview(tf);
         
         tf.topAnchor.constraint(equalTo: self.whiteView.topAnchor).isActive = true;
         tf.leftAnchor.constraint(equalTo: self.nameLb.rightAnchor, constant: 8).isActive = true;
         tf.rightAnchor.constraint(equalTo: self.whiteView.rightAnchor).isActive = true;
         tf.heightAnchor.constraint(equalToConstant: 50).isActive = true;
-//
+
         self.whiteView.addSubview(datePicker);
-//
+
         datePicker.topAnchor.constraint(equalTo: self.nameLb.bottomAnchor, constant: 8).isActive = true;
         datePicker.leftAnchor.constraint(equalTo: self.whiteView.leftAnchor).isActive = true;
         datePicker.rightAnchor.constraint(equalTo: self.whiteView.rightAnchor).isActive = true;
@@ -128,6 +130,11 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         print(info);
+        
+        self.companyImageView.clipsToBounds = true;
+        self.companyImageView.layer.cornerRadius = self.companyImageView.frame.width / 2;
+        self.companyImageView.layer.borderWidth = 2;
+        self.companyImageView.layer.borderColor = UIColor.darkGray.cgColor;
         
         if let editedImage = info[.editedImage] as? UIImage {
             self.companyImageView.setImage(editedImage.withRenderingMode(.alwaysOriginal), for: .normal);
@@ -168,6 +175,7 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
                 dateFormatter.dateStyle = .full;
                 let newDate = dateFormatter.string(from: companyEntity.founded);
                 print(companyEntity.name, newDate);
+                self.dismiss(animated: true);
             }
             
         }
@@ -179,16 +187,28 @@ class CreateCompanyViewController: UIViewController, UIImagePickerControllerDele
         
         let companyEntity = NSEntityDescription.insertNewObject(forEntityName: "CompanyModel", into: context);
         
-        companyEntity.setValue(datePicker.date, forKey: "founded");
-        companyEntity.setValue(tf.text!, forKey: "name");
+        if let companyImage = companyImageView.imageView?.image {
+            self.imageLocalData = companyImage.jpegData(compressionQuality: 0.8);
+            companyEntity.setValue(imageData, forKey: "image");
+        }
         
+        let dateFormatter = DateFormatter();
+        dateFormatter.dateFormat = "dd/MM/yyyy";
+        dateFormatter.dateStyle = .short;
+        let tempDateString = dateFormatter.string(from: datePicker.date);
+        let tempDate = dateFormatter.date(from: tempDateString);
+        
+        companyEntity.setValue(tempDate, forKey: "founded");
+        companyEntity.setValue(tf.text!, forKey: "name");
+        companyEntity.setValue(imageLocalData, forKey: "image");
         
         do {
             try context.save();
         } catch let err {
             print(err);
         }
-        let company = Company(name: tf.text!, founded: Date());
+        
+        let company = Company(name: tf.text!, founded: Date(), image: imageLocalData);
         
         delegate?.didAddCompany(company:company);
         

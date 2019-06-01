@@ -9,11 +9,19 @@
 import UIKit
 import CoreData
 
+class Image {
+    var image: Data?
+    
+    init(image: Data? = nil) {
+        guard let imageData = image else { return };
+        self.image = imageData;
+    }
+}
+
 class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
     func didAddCompany(company: Company) {
         self.addCompany(company: company);
     }
-    
     
     var companies = [Company]();
     
@@ -48,11 +56,12 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
             if res.count == 0 { return }
             
             res.forEach { (item) in
-                let compEntity = Company(name: item.name!, founded: item.founded!);
+                let compEntity = Company(name: item.name!, founded: item.founded!, image: item.image);
                 tempCompanies.append(compEntity);
             }
             
             self.companies = tempCompanies;
+            
             
             DispatchQueue.main.async {
                 self.tableView.reloadData();
@@ -63,6 +72,20 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
         
     }
     
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let label = UILabel();
+        label.text = "No companies available...";
+        label.textColor = .white;
+        label.textAlignment = .center;
+        label.font = UIFont.boldSystemFont(ofSize: 16);
+        
+        return label;
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return self.companies.count > 0 ? 0 : 150;
+    }
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.companies.count;
     }
@@ -70,8 +93,8 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         
         let deleteAction = UITableViewRowAction(style: .destructive, title: "Delete") { (action, index) in
-            self.companies.remove(at: indexPath.row);
             
+            self.companies.remove(at: indexPath.row);
             
             let ctx = CoreDataManager.shared.persistentContainer.viewContext;
             
@@ -96,15 +119,6 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
                 print(err);
             }
             
-//            let companyModel = CompanyModel(context: ctx );
-            
-//            var object: NSManagedObject! = companyModel;
-            
-//            ctx.delete(object)
-            
-            
-//            ctx.delete();
-            
             DispatchQueue.main.async {
                 self.tableView.reloadData();
             }
@@ -125,16 +139,77 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath);
         
+        let dateFormatter = DateFormatter();
+    
+        dateFormatter.dateFormat = "dd/MM/yyyy";
+        
+        let finalDate = dateFormatter.string(from: self.companies[indexPath.row].founded);
+        
         cell.backgroundColor = UIColor.tealColor;
-        cell.textLabel?.text = "\(self.companies[indexPath.row].name) - Founded: \(self.companies[indexPath.row].founded)";
+        cell.textLabel?.text = "\(self.companies[indexPath.row].name) - Founded: \(finalDate)";
         cell.textLabel?.textColor = .white;
         cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 16);
+        cell.imageView?.layer.cornerRadius = 5;
+        cell.imageView?.clipsToBounds = true;
+        
+        if let pic = self.companies[indexPath.row].image {
+            cell.imageView?.image = UIImage(data: pic);
+        } else {
+            cell.imageView?.image = #imageLiteral(resourceName: "app_icon");
+        }
         
         return cell;
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath);
+        
+        let companyVC = CreateCompanyViewController();
+        companyVC.delegate = self;
+        
+        if let pic = self.companies[indexPath.row].image {
+            cell.imageView?.image = UIImage(data: pic);
+            companyVC.imageData = pic;
+        } else {
+            cell.imageView?.image = #imageLiteral(resourceName: "app_icon");
+        }
+        
+        let companyEVC = EmployeesController();
+        companyEVC.company = self.companies[indexPath.row];
+//        companyEVC.company = self.companies[indexPath.row];
+        
+        navigationController?.pushViewController(companyEVC, animated: true);
+//        self.present(UINavigationController(rootViewController:companyVC), animated: true, completion: nil);
+    }
+    
     private func setupNavigationButtons() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "plus").withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(handlePressRightButton))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Reset", style: .plain, target: self, action: #selector(handlePressLeftButton));
+    }
+    
+    @objc private func handlePressLeftButton() {
+        let ctx = CoreDataManager.shared.persistentContainer.viewContext;
+        
+        let batchRequest = NSBatchDeleteRequest(fetchRequest: CompanyModel.fetchRequest());
+        
+        do {
+            try ctx.execute(batchRequest);
+            try ctx.save();
+            
+            var indexPaths = [IndexPath]();
+            
+            for (index, _) in self.companies.enumerated() {
+                let indexPath = IndexPath(row: index, section: 0);
+                indexPaths.append(indexPath);
+            }
+            
+            self.companies.removeAll();
+            
+            self.tableView.deleteRows(at:indexPaths, with: .middle);
+    
+        } catch let error {
+            print(error)
+        }
     }
     
     @objc private func handlePressRightButton() {
@@ -143,6 +218,16 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
         
         createCompaniesController.delegate = self;
         
+        let ctx = CoreDataManager.shared.persistentContainer.viewContext;
+        
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "CompanyModel");
+        
+        do {
+            let result = try ctx.fetch(request);
+            
+        } catch let error {
+            print(error.localizedDescription);
+        }
         
         self.present(UINavigationController(rootViewController: createCompaniesController), animated: true);
     }
@@ -165,7 +250,7 @@ class CompaniesViewController: UITableViewController, CreateCompanyDelegate {
         
         view.backgroundColor = .white;
         navigationItem.title = "Companies";
-        
+
         navigationController?.navigationBar.isTranslucent = false;
         navigationController?.navigationBar.barTintColor = UIColor.lightBackround;
         navigationController?.navigationBar.prefersLargeTitles = true;

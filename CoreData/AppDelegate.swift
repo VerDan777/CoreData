@@ -19,13 +19,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible();
         
         UINavigationBar.appearance().barTintColor = .lightBackround;
+        UINavigationBar.appearance().tintColor = .white;
         UINavigationBar.appearance().isTranslucent = false;
         UINavigationBar.appearance().prefersLargeTitles = true;
         UINavigationBar.appearance().largeTitleTextAttributes = [
             NSAttributedString.Key.foregroundColor: UIColor.white
         ];
         
-        let topLevelViewController = UINavigationController(rootViewController: CompaniesViewController())
+        let topLevelViewController = UINavigationController(rootViewController: CompaniesViewController());
         
         window?.rootViewController = topLevelViewController
         return true

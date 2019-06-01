@@ -7,8 +7,10 @@
 //
 
 import Foundation
+import UIKit
 
 struct Company: Codable {
     let name: String
     let founded: Date
+    let image: Data?
 }

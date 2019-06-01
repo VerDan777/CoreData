@@ -17,6 +17,7 @@
 		D5148EAB229994E200655DA9 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5148EAA229994E200655DA9 /* Extensions.swift */; };
 		D5148EAE2299987A00655DA9 /* Company.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5148EAD2299987A00655DA9 /* Company.swift */; };
 		D5148EB022999BC700655DA9 /* CreateCompanyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5148EAF22999BC700655DA9 /* CreateCompanyViewController.swift */; };
+		D52F574D22A26E2A00CDC98A /* EmployessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D52F574C22A26E2A00CDC98A /* EmployessController.swift */; };
 		D576EC16229AC877007E9ABB /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D576EC14229AC877007E9ABB /* CoreDataModel.xcdatamodeld */; };
 		D576EC19229ADD23007E9ABB /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D576EC18229ADD23007E9ABB /* CoreDataManager.swift */; };
 /* End PBXBuildFile section */
@@ -55,6 +56,7 @@
 		D5148EAA229994E200655DA9 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		D5148EAD2299987A00655DA9 /* Company.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Company.swift; sourceTree = "<group>"; };
 		D5148EAF22999BC700655DA9 /* CreateCompanyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCompanyViewController.swift; sourceTree = "<group>"; };
+		D52F574C22A26E2A00CDC98A /* EmployessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmployessController.swift; sourceTree = "<group>"; };
 		D576EC15229AC877007E9ABB /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
 		D576EC18229ADD23007E9ABB /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -107,6 +109,7 @@
 		D5148E7A22998B3300655DA9 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				D52F574B22A26DF900CDC98A /* Controllers */,
 				D576EC17229ADD10007E9ABB /* CoreDataManager */,
 				D5148EAC2299986A00655DA9 /* Models */,
 				D5148EA9229994C000655DA9 /* Extensions */,
@@ -154,6 +157,14 @@
 				D5148EAD2299987A00655DA9 /* Company.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		D52F574B22A26DF900CDC98A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				D52F574C22A26E2A00CDC98A /* EmployessController.swift */,
+			);
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 		D576EC17229ADD10007E9ABB /* CoreDataManager */ = {
@@ -296,6 +307,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5148E7E22998B3300655DA9 /* ViewController.swift in Sources */,
+				D52F574D22A26E2A00CDC98A /* EmployessController.swift in Sources */,
 				D5148EB022999BC700655DA9 /* CreateCompanyViewController.swift in Sources */,
 				D576EC16229AC877007E9ABB /* CoreDataModel.xcdatamodeld in Sources */,
 				D5148EAB229994E200655DA9 /* Extensions.swift in Sources */,
